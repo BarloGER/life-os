@@ -1,0 +1,38 @@
+# ------------------------------
+# ⚙️ Global ignores
+# ------------------------------
+*.env
+*.log
+*.lock
+.DS_Store
+Thumbs.db
+
+# ------------------------------
+# 🐘 PHP / Composer | 🐳 Docker(Backend)
+# ------------------------------
+vendor/
+backend/logs/
+backend/docker-compose.prod.yml
+docker-compose.prod.yml
+
+# ------------------------------
+# 🌐 Node.js / Frontend (Vite/Vue/React)
+# ------------------------------
+node_modules/
+dist/
+.vite/
+frontend/dist/
+frontend/.vite/
+frontend/node_modules/
+
+# ------------------------------
+# 🧪 Tests
+# ------------------------------
+coverage/
+
+# ------------------------------
+# ⚙️ IDE / Editor
+# ------------------------------
+.vscode/
+.idea/
+*.iml

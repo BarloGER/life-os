@@ -1,0 +1,25 @@
+FROM php:8.3-apache
+
+# Enable required Apache modules
+RUN a2enmod headers rewrite
+
+# Install development tools and PHP extensions
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    git \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+  && docker-php-ext-install pdo pdo_mysql bcmath \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Use a version-controlled dev php.ini
+COPY docker/php.ini.dev /usr/local/etc/php/conf.d/99-custom-dev.ini
+
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Set working directory (matches volume in docker-compose.dev.yml)
+WORKDIR /var/www/html
