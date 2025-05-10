@@ -1,0 +1,48 @@
+# Build Stage: Composer, Dev-Tools
+FROM php:8.3-apache AS build
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    git \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    && docker-php-ext-install pdo pdo_mysql bcmath \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN a2enmod headers rewrite
+
+# Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+WORKDIR /app
+COPY ./ /app
+RUN composer install --no-dev --optimize-autoloader
+
+# Runtime Stage: schlank & sicher
+FROM php:8.3-apache
+
+# Apache-Hardening
+RUN a2enmod headers rewrite && \
+    echo 'ServerTokens Prod' >> /etc/apache2/apache2.conf && \
+    echo 'ServerSignature Off' >> /etc/apache2/apache2.conf
+
+# PHP-Hardening
+RUN echo 'expose_php = Off' > "$PHP_INI_DIR/conf.d/prod-php.ini"
+
+# Nur benötigte Extensions
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    && docker-php-ext-install pdo pdo_mysql bcmath \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /var/www/html
+COPY --from=build /app /var/www/html
+
+# Rechte setzen (optional)
+RUN chown -R www-data:www-data /var/www/html

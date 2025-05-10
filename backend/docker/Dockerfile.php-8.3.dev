@@ -1,0 +1,26 @@
+FROM php:8.3-apache
+
+# Enable apache2 mod_headers
+RUN a2enmod headers
+
+# Activate Apache rewrite (z. B. for .htaccess)
+RUN a2enmod rewrite
+
+# Install useful PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql bcmath
+
+# Disable exposing Apache and its version in response header
+RUN { \
+		echo 'ServerTokens Prod'; \
+    echo 'ServerSignature Off'; \
+	} | tee -a "$APACHE_CONFDIR/apache2.conf"
+
+# Disable exposing PHP version in response header
+RUN echo 'expose_php = Off' | tee "$PHP_INI_DIR/conf.d/prod-php.ini"
+
+# Install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN apt-get update -y
+
+WORKDIR /var/www/html
