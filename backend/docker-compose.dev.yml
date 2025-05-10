@@ -1,20 +1,20 @@
 services:
   backend:
     build:
-      context: ./backend
-      dockerfile: docker/php-8.3.dev.Dockerfile
-    container_name: backend
+      context: .
+      dockerfile: docker/Dockerfile.php-8.3.dev
+    container_name: backend-dev
     ports:
       - "8080:80"
     volumes:
-      - ./backend:/var/www/html
-      - ./backend/logs/php_errors.log:/var/log/php_errors.log
+      - ./app:/var/www/html
+      - ./logs/php_errors.log:/var/log/php_errors.log
     depends_on:
       - db
 
   db:
     image: mariadb:latest
-    container_name: mariadb
+    container_name: mariadb-dev
     restart: always
     environment:
       MYSQL_DATABASE: test_db

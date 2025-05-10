@@ -1,26 +1,25 @@
 FROM php:8.3-apache
 
-# Enable apache2 mod_headers
-RUN a2enmod headers
+# Enable required Apache modules
+RUN a2enmod headers rewrite
 
-# Activate Apache rewrite (z. B. for .htaccess)
-RUN a2enmod rewrite
+# Install development tools and PHP extensions
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    git \
+    libzip-dev \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+  && docker-php-ext-install pdo pdo_mysql bcmath \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install useful PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql bcmath
+# Use a version-controlled dev php.ini
+COPY docker/php.ini.dev /usr/local/etc/php/conf.d/99-custom-dev.ini
 
-# Disable exposing Apache and its version in response header
-RUN { \
-		echo 'ServerTokens Prod'; \
-    echo 'ServerSignature Off'; \
-	} | tee -a "$APACHE_CONFDIR/apache2.conf"
-
-# Disable exposing PHP version in response header
-RUN echo 'expose_php = Off' | tee "$PHP_INI_DIR/conf.d/prod-php.ini"
-
-# Install composer
+# Install Composer globally
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN apt-get update -y
-
+# Set working directory (matches volume in docker-compose.dev.yml)
 WORKDIR /var/www/html

@@ -1,0 +1,33 @@
+; Do not display errors to the user (safe for production)
+display_errors = Off
+
+; Log all errors
+log_errors = On
+
+; Log level (ignore notices and deprecated warnings)
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_NOTICE
+
+; Log to stderr (Docker will capture this)
+error_log = /proc/self/fd/2
+
+; Hide PHP version from HTTP headers
+expose_php = Off
+
+; Resource limits
+memory_limit = 256M
+max_execution_time = 30
+upload_max_filesize = 10M
+post_max_size = 12M
+
+; Session hardening
+session.cookie_httponly = 1
+session.cookie_secure = 1
+
+[opcache]
+opcache.enable = 1
+opcache.enable_cli = 1
+opcache.memory_consumption = 128
+opcache.interned_strings_buffer = 8
+opcache.max_accelerated_files = 10000
+opcache.revalidate_freq = 0
+opcache.validate_timestamps = 0
